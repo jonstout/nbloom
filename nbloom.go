@@ -23,9 +23,11 @@ func NewNBloom(w int) *NBloom {
 	return b
 }
 
-// Returns a []int indicating the index of each BloomFilter that
-// reported a positive search result.
+// Returns the longest prefix, and true if there exists a match
+// for ip. Else returns nil and false.
 func (n *NBloom) Search(ip *net.IP) (*net.IPNet, bool) {
+	// []bool indicates the index of each BloomFilter that
+	// reported a positive search result.
 	res := make([]bool, n.size)
 	for i, f := range n.filters {
 		go func() {
@@ -36,6 +38,9 @@ func (n *NBloom) Search(ip *net.IP) (*net.IPNet, bool) {
 	}
 	// TODO - Wait for all funcs to finish.
 
+	// For each prefix that reported a positive search
+	// result, check that prefix's hashmap starting with
+	// the longest prefix first.
 	for i := len(res) - 1; i > -1; i-- {
 		if res[i] {
 			if nextHop, ok := n.filters[i].Lookup(ip); ok {
@@ -44,36 +49,6 @@ func (n *NBloom) Search(ip *net.IP) (*net.IPNet, bool) {
 		}
 	}
 	return nil, false
-}
-
-type BloomFilter struct {
-	index int
-	hashes HashSet
-	prefixes map[string]*net.IPNet
-}
-
-func NewBloomFilter(p int) *BloomFilter {
-	f := new(BloomFilter)
-	f.index = p
-	f.hashes = NewHashSet(p)
-	f.prefixes = make(map[string]*net.IPNet)
-	return f
-}
-
-func (b *BloomFilter) ProgramPrefix(p *net.IPNet, nextHop *net.IPNet) {
-	b.prefixes[p.IP.String()] = nextHop
-}
-
-func (b *BloomFilter) Search(ip *net.IP) (int, bool) {
-	if true {
-		return b.index, true
-	}
-	return -1, false
-}
-
-func (b *BloomFilter) Lookup(ip *net.IP) (n *net.IPNet, ok bool) {
-	n, ok = b.prefixes[ip.String()]
-	return
 }
 
 func main() {
