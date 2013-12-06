@@ -22,13 +22,21 @@ func NewBloomFilter(p int) *BloomFilter {
 
 func (b *BloomFilter) ProgramPrefix(p *net.IPNet, nextHop *net.IPNet) {
 	b.prefixes[p.IP.String()] = nextHop
+	
+	for f := range b.hashes {
+		n := f(p)
+		b.filter[n] = true
+	}
 }
 
 func (b *BloomFilter) Search(ip *net.IP) (int, bool) {
-	if true {
-		return b.index, true
+	for f := range b.hashes {
+		n := f(ip)
+		if !b.filter[n] {
+			return -1, false
+		}
 	}
-	return -1, false
+	return b.index, true
 }
 
 func (b *BloomFilter) Lookup(ip *net.IP) (n *net.IPNet, ok bool) {
