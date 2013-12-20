@@ -12,7 +12,7 @@ type NBloom struct {
 }
 
 // Creates a new NBloom where w is the length of input addresses.
-// i.e. 24 for IPv4 and 128 for IPv6.
+// i.e. 32 for IPv4 and 128 for IPv6.
 func NewNBloom(w int) *NBloom {
 	b := new(NBloom)
 	b.size = w
@@ -51,7 +51,16 @@ func (n *NBloom) Search(ip *net.IP) (*net.IPNet, bool) {
 	return nil, false
 }
 
+func (n *NBloom) ProgramPrefix(ip *net.IPNet, nHop *net.IPNet) {
+	for _, f := range n.filters {
+		f.ProgramPrefix(ip, nHop)
+	}
+}
+
 func main() {
 	h := NewNBloom(10)
+	_, p, _ := net.ParseCIDR("10.10.0.0/24")
+	_, nHop, _ := net.ParseCIDR("10.10.0.1/24")
+	h.ProgramPrefix(p, nHop)
 	fmt.Println("Hello nbloom", h)
 }

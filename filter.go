@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net"
 )
 
@@ -13,9 +14,11 @@ type BloomFilter struct {
 
 func NewBloomFilter(p int) *BloomFilter {
 	f := new(BloomFilter)
+	k := p
+	
 	f.index = p
 	f.filter = make([]bool, p)
-	f.hashes = NewHashSet(p) // Should be size k
+	f.hashes = NewHashSet(k)
 	f.prefixes = make(map[string]*net.IPNet)
 	return f
 }
@@ -23,15 +26,16 @@ func NewBloomFilter(p int) *BloomFilter {
 func (b *BloomFilter) ProgramPrefix(p *net.IPNet, nextHop *net.IPNet) {
 	b.prefixes[p.IP.String()] = nextHop
 	
-	for f := range b.hashes {
-		n := f(p)
+	for _, f := range b.hashes {
+		n := f(p.IP)
+		log.Println(n)
 		b.filter[n] = true
 	}
 }
 
 func (b *BloomFilter) Search(ip *net.IP) (int, bool) {
 	for f := range b.hashes {
-		n := f(ip)
+		n := f
 		if !b.filter[n] {
 			return -1, false
 		}
