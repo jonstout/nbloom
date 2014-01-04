@@ -1,17 +1,20 @@
 package main
 
 import (
-	"log"
+	//"log"
 	"math/rand"
 	"time"
 )
 
-// A function that returns an integer val.
+// A function that returns an integer val representing the index of an
+// array to be set.
 type Hash func([]byte) (val int)
 
+// A slice of functions that return an integer which represent all
+// indexes of an array to be set.
 type HashSet []Hash
 
-// Returns a HashSet with size Hash's.
+// Returns a HashSet of length size.
 func NewHashSet(size int) HashSet {
 	set := make([]Hash, size)
 
@@ -21,20 +24,19 @@ func NewHashSet(size int) HashSet {
 	return set
 }
 
-// Returns a Hash that returns the md5hash value of addr plus a set
-// random number modulo size.
+// Returns a hash function to generate indexes based on a given byte
+// array. The returned Hash will return indexes between size - 1 and 0.
 func NewHashFunction(size int) Hash {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	
 	f := func(addr []byte) (i int) {
 		h := hashValue(addr)
-		log.Println(h, r.Int(), size)
 		return (h + r.Int()) % size
 	}
 	return f
 }
 
-// Returns the md5 checksum
+// Returns the md5 checksum of buf.
 func hashValue(buf []byte) int {
 	//h := md5.New()
 	//return h.Sum(data)

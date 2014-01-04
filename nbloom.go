@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	//"log"
 	"net"
 )
 
@@ -17,7 +17,7 @@ func NewNBloom(w int) *NBloom {
 	b := new(NBloom)
 	b.size = w
 	b.filters = make([]*BloomFilter, w)
-	for i, _ := range b.filters {
+	for i := 0; i < len(b.filters); i++ {
 		b.filters[i] = NewBloomFilter(i)
 	}
 	return b
@@ -58,9 +58,8 @@ func (n *NBloom) ProgramPrefix(ip *net.IPNet, nHop *net.IPNet) {
 }
 
 func main() {
-	h := NewNBloom(10)
+	h := NewNBloom(24)
 	_, p, _ := net.ParseCIDR("10.10.0.0/24")
 	_, nHop, _ := net.ParseCIDR("10.10.0.1/24")
 	h.ProgramPrefix(p, nHop)
-	fmt.Println("Hello nbloom", h)
 }

@@ -20,6 +20,7 @@ func NewBloomFilter(p int) *BloomFilter {
 	f.filter = make([]bool, p)
 	f.hashes = NewHashSet(k)
 	f.prefixes = make(map[string]*net.IPNet)
+	log.Println("Creating a bloom filter size", p, "with", k, "hash functions.")
 	return f
 }
 
@@ -28,7 +29,6 @@ func (b *BloomFilter) ProgramPrefix(p *net.IPNet, nextHop *net.IPNet) {
 	
 	for _, f := range b.hashes {
 		n := f(p.IP)
-		log.Println(n)
 		b.filter[n] = true
 	}
 }
