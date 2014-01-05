@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net"
+	"math"
 )
 
 type BloomFilter struct {
@@ -10,17 +11,36 @@ type BloomFilter struct {
 	filter []bool
 	hashes HashSet
 	prefixes map[string]*net.IPNet
+	
+	// number of hash functions in this bloom filter
+	k int
+	// The size of this bloom filter.
+	m int
+	// Number of prefixes stored in this bloom filter
+	n int
 }
 
-func NewBloomFilter(p int) *BloomFilter {
+// total amount of embedded memory available for Bloom filters
+var M int = 200000
+// total number of prefixes supported by this system
+var N int = 32
+
+func NewBloomFilter(w int) *BloomFilter {
 	f := new(BloomFilter)
-	k := p
-	
-	f.index = p
-	f.filter = make([]bool, p)
-	f.hashes = NewHashSet(k)
+	f.index = w
+	// (M / N) is the size of this bloom filter. This could be improved to
+	// be the size of ((M / N) * p) where p is the probibility that a
+	// random prefix will be found in this filter.
+	f.m = M / N
+	// In the optimal case, when false positive probability is minimized
+	// with respect to k, we get the following relationship:
+	// k = (m/n)ln(2)
+	f.k = int(float64(f.m) * math.Log(2))
+	f.n = 0
+	f.filter = make([]bool, f.m)
+	f.hashes = NewHashSet(f.k)
 	f.prefixes = make(map[string]*net.IPNet)
-	log.Println("Creating a bloom filter size", p, "with", k, "hash functions.")
+	log.Println("Prefix", f.index, "Bloom Filter size", f.m, "with", f.k, "hash funcs created.")
 	return f
 }
 

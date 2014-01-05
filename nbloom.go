@@ -58,7 +58,7 @@ func (n *NBloom) ProgramPrefix(ip *net.IPNet, nHop *net.IPNet) {
 }
 
 func main() {
-	h := NewNBloom(24)
+	h := NewNBloom(32)
 	_, p, _ := net.ParseCIDR("10.10.0.0/24")
 	_, nHop, _ := net.ParseCIDR("10.10.0.1/24")
 	h.ProgramPrefix(p, nHop)
