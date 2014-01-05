@@ -1,8 +1,9 @@
 package main
 
 import (
-	//"log"
+	"log"
 	"net"
+	"errors"
 )
 
 // A slice of BloomFilters sorted by prefix length.
@@ -57,9 +58,18 @@ func (n *NBloom) ProgramPrefix(ip *net.IPNet, nHop *net.IPNet) {
 	}
 }
 
+func (n *NBloom) Prefix(i int) (f *BloomFilter, err error) {
+	if i < n.size && i > -1 {
+		return n.filters[i], nil
+	}
+	return nil, errors.New("Prefix out of range.")
+}
+
 func main() {
 	h := NewNBloom(32)
 	_, p, _ := net.ParseCIDR("10.10.0.0/24")
 	_, nHop, _ := net.ParseCIDR("10.10.0.1/24")
 	h.ProgramPrefix(p, nHop)
+	s, _ := h.Prefix(31)
+	log.Println(s)
 }

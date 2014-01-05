@@ -21,7 +21,7 @@ type BloomFilter struct {
 }
 
 // total amount of embedded memory available for Bloom filters
-var M int = 200000
+var M int = 2000
 // total number of prefixes supported by this system
 var N int = 32
 
@@ -66,4 +66,16 @@ func (b *BloomFilter) Search(ip *net.IP) (int, bool) {
 func (b *BloomFilter) Lookup(ip *net.IP) (n *net.IPNet, ok bool) {
 	n, ok = b.prefixes[ip.String()]
 	return
+}
+
+func (b *BloomFilter) String() string {
+	s := "["
+	for _, b := range b.filter {
+		if b == true {
+			s += "1, "
+		} else {
+			s += "0, "
+		}
+	}
+	return s[:len(s) - 2] + "]"
 }
